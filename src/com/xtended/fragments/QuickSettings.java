@@ -76,12 +76,14 @@ public class QuickSettings extends SettingsPreferenceFragment implements
 
     private static final String X_FOOTER_TEXT_STRING = "x_footer_text_string";
     private static final String KEY_QS_PANEL_STYLE  = "qs_panel_style";
+    private static final String KEY_QS_UI_STYLE = "qs_ui_style";
 
     private Handler mHandler;
     private IOverlayManager mOverlayService;
     private ThemesUtils mThemeUtils;
     private SystemSettingEditTextPreference mFooterString;
     private SystemSettingListPreference mQsStyle;
+    private SystemSettingListPreference mQsUI;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -110,6 +112,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements
         }
 
         mQsStyle = (SystemSettingListPreference) findPreference(KEY_QS_PANEL_STYLE);
+        mQsUI = (SystemSettingListPreference) findPreference(KEY_QS_UI_STYLE);
+
         mCustomSettingsObserver.observe();
     }
 
@@ -126,12 +130,17 @@ public class QuickSettings extends SettingsPreferenceFragment implements
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_PANEL_STYLE),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_UI_STYLE),
+                    false, this, UserHandle.USER_ALL);        
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             if (uri.equals(Settings.System.getUriFor(Settings.System.QS_PANEL_STYLE))) {
-                updateQsStyle();
+            updateQsStyle(false /*QS UI theme*/);
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.QS_UI_STYLE))) {
+                updateQsStyle(true /*QS UI theme*/);     
             }
         }
     }
@@ -153,6 +162,9 @@ public class QuickSettings extends SettingsPreferenceFragment implements
         } else if (preference == mQsStyle) {
             mCustomSettingsObserver.observe();
             return true;
+         } else if (preference == mQsUI) {
+            mCustomSettingsObserver.observe();
+            return true;    
         }
         return false;
     }
@@ -162,9 +174,13 @@ public class QuickSettings extends SettingsPreferenceFragment implements
         return MetricsProto.MetricsEvent.XTENSIONS;
     }
 
-    private void updateQsStyle() {
+    private void updateQsStyle(boolean isQsUI) {
         ContentResolver resolver = getActivity().getContentResolver();
-
+        boolean isA11Style = Settings.System.getIntForUser(getContext().getContentResolver(),
+                Settings.System.QS_UI_STYLE , 1, UserHandle.USER_CURRENT) == 1;
+	if (isQsUI) {
+	    setQsStyle(isA11Style ? "com.android.system.qs.ui.A11" : "com.android.systemui");
+	} else {
         int qsPanelStyle = Settings.System.getIntForUser(getContext().getContentResolver(),
                 Settings.System.QS_PANEL_STYLE , 0, UserHandle.USER_CURRENT);
 
@@ -202,6 +218,7 @@ public class QuickSettings extends SettingsPreferenceFragment implements
             default:
               break;
         }
+        }
     }
 
     public static void setDefaultStyle(IOverlayManager overlayManager) {
@@ -216,6 +233,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements
     }
 
     public void setQsStyle(String overlayName) {
-        mThemeUtils.setOverlayEnabled("android.theme.customization.qs_panel", overlayName);
+      boolean isA11Style = Settings.System.getIntForUser(getContext().getContentResolver(),
+                Settings.System.QS_UI_STYLE , 1, UserHandle.USER_CURRENT) == 1;
+        mThemeUtils.setOverlayEnabled(isA11Style ? "android.theme.customization.qs_ui" : "android.theme.customization.qs_panel", overlayName, "com.android.systemui");
     }
 }
