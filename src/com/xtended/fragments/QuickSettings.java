@@ -221,20 +221,24 @@ public class QuickSettings extends SettingsPreferenceFragment implements
         }
     }
 
-    public static void setDefaultStyle(IOverlayManager overlayManager) {
-        for (int i = 0; i < QS_STYLES.length; i++) {
-            String qsStyles = QS_STYLES[i];
-            try {
-                overlayManager.setEnabled(qsStyles, false, USER_SYSTEM);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+   public static void setDefaultStyle(IOverlayManager overlayManager) {
+    for (int i = 0; i < QS_STYLES.length; i++) {
+        String qsStyles = QS_STYLES[i];
+        try {
+            overlayManager.setEnabled(qsStyles, false, USER_SYSTEM);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
-
-    public void setQsStyle(String overlayName) {
-      boolean isA11Style = Settings.System.getIntForUser(getContext().getContentResolver(),
-                Settings.System.QS_UI_STYLE , 1, UserHandle.USER_CURRENT) == 1;
-        mThemeUtils.setOverlayEnabled(isA11Style ? "android.theme.customization.qs_ui" : "android.theme.customization.qs_panel", overlayName, "com.android.systemui");
-    }
 }
+
+public void setQsStyle(String overlayName) {
+    boolean isA11Style = Settings.System.getIntForUser(getContext().getContentResolver(),
+            Settings.System.QS_UI_STYLE, 1, UserHandle.USER_CURRENT) == 1;
+    mThemeUtils.setOverlayEnabled(
+        isA11Style ? "android.theme.customization.qs_ui" : "android.theme.customization.qs_panel",
+        overlayName,
+         "com.android.systemui"
+        );
+    }
+}   

@@ -43,6 +43,14 @@
             android:summary="@string/custom_wifi_bar_summary"
             android:fragment="com.xtended.fragments.WifiIcons"/>
 
+        <!-- QS UI -->
+            <com.xtended.settings.preferences.SystemSettingListPreference
+            android:key="qs_ui_style"
+            android:title="@string/qs_ui_title"
+            android:entries="@array/qs_ui_entries"
+            android:entryValues="@array/qs_ui_values"
+            android:summary="%s"
+            android:defaultValue="0" />
         <!-- Signal icon style -->
         <Preference
             android:key="android.theme.customization.signal_icon"
